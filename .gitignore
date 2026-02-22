@@ -1,0 +1,18 @@
+# 忽略 Python 编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 忽略训练产生的日志和模型存档
+logs/
+model/
+*.pth
+
+# 忽略环境配置（如果你用了虚拟环境）
+venv/
+env/
+.env
+
+# 忽略系统文件 (Mac/Windows)
+.DS_Store
+Thumbs.db
