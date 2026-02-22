@@ -11,7 +11,7 @@ from memory import PrioritizedReplayBuffer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 MAX_MEMORY = 100000
-BATCH_SIZE = 1024
+BATCH_SIZE = 256
 LR         = 0.0003
 MODEL_DIR  = './model'
 
@@ -162,7 +162,8 @@ class Agent:
 def train():
     agent = Agent()
     game  = SnakeGameAI()
-
+    # 【新增】步数计数器
+    total_steps = 0
     record = agent.load_checkpoint('checkpoint.pth')
 
     run_name = f"Snake_CNN_PER_{int(time.time())}"
@@ -170,9 +171,11 @@ def train():
     print(f"📈 实时监控已开启，请在终端输入: tensorboard --logdir=logs")
 
     current_score = 0
+    long_loss = 0.0  # 初始化 loss 用于打印
 
     try:
         while True:
+            total_steps += 1  # 【新增】
             state_old  = agent.get_state(game)
             final_move = agent.get_action(state_old)
 
@@ -183,16 +186,20 @@ def train():
 
             state_new  = agent.get_state(game)
 
-            # 短期记忆：每步在线更新一次
-            agent.train_short_memory(state_old, final_move, reward, state_new, done)
+            # 【核心修改 1】只记不练！彻底干掉单步在线训练 (train_short_memory)
             agent.remember(state_old, final_move, reward, state_new, done)
+
+
+            if total_steps % 4 == 0:
+                step_loss = agent.train_long_memory()
+                if step_loss != 0.0:
+                    long_loss = step_loss  # 更新最新的 loss 用于打印
 
             if done:
                 game.reset()
                 agent.n_games += 1
 
-                # 长期记忆：每局结束后批量训练
-                long_loss = agent.train_long_memory()
+                # （这里原本的 agent.train_long_memory() 已经被我们挪到上面去了）
 
                 if score > record:
                     record = score
