@@ -42,7 +42,7 @@ class Linear_QNet(nn.Module):
 
 
 class Conv_QNet(nn.Module):
-    def __init__(self, in_channels=4, grid_h=24, grid_w=32, output_size=3):
+    def __init__(self, in_channels=7, grid_h=24, grid_w=32, output_size=3):
         super().__init__()
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=4, stride=2, padding=1)
         self.conv2 = nn.Conv2d(in_channels=16,          out_channels=32, kernel_size=4, stride=2, padding=1)

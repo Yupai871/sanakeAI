@@ -63,19 +63,20 @@ class Agent:
             return 0
 
     # ── State ────────────────────────────────────────────────────────────────
+
     def get_state(self, game):
         """
-        将游戏状态编码为 4 通道的 24×32 张量：
-          通道 0：食物位置（稀疏二值图）
-          通道 1：蛇头位置（稀疏二值图）
-          通道 2：蛇身位置（稀疏二值图）
-          通道 3：当前方向（全图填充同一浮点值）
-
-        注意：方向本质上是类别变量，用连续标量（0.25/0.5/0.75/1.0）存在
-        隐式大小关系。如需进一步优化，可将此通道改为 4 个独立的 one-hot
-        通道，并同步修改 Conv_QNet 的 in_channels=7。
+        将游戏状态编码为 7 通道的 24×32 张量：
+          通道 0：食物位置
+          通道 1：蛇头位置
+          通道 2：蛇身位置
+          通道 3：方向 向上 (UP)
+          通道 4：方向 向右 (RIGHT)
+          通道 5：方向 向下 (DOWN)
+          通道 6：方向 向左 (LEFT)
         """
-        state = np.zeros((4, 24, 32), dtype=np.float32)
+        # 【修改1】把 4 通道改为 7 通道
+        state = np.zeros((7, 24, 32), dtype=np.float32)
 
         # 通道 0：食物
         fx, fy = int(game.food.x // BLOCK_SIZE), int(game.food.y // BLOCK_SIZE)
@@ -93,14 +94,15 @@ class Agent:
             if 0 <= bx < 32 and 0 <= by < 24:
                 state[2, by, bx] = 1.0
 
-        # 通道 3：当前方向（铺满全图）
-        dir_map = {
-            Direction.UP:    0.25,
-            Direction.RIGHT: 0.50,
-            Direction.DOWN:  0.75,
-            Direction.LEFT:  1.00,
-        }
-        state[3, :, :] = dir_map.get(game.direction, 0.0)
+        # 【修改2】方向的 One-hot 编码铺满对应的专属通道
+        if game.direction == Direction.UP:
+            state[3, :, :] = 1.0
+        elif game.direction == Direction.RIGHT:
+            state[4, :, :] = 1.0
+        elif game.direction == Direction.DOWN:
+            state[5, :, :] = 1.0
+        elif game.direction == Direction.LEFT:
+            state[6, :, :] = 1.0
 
         return state
 
