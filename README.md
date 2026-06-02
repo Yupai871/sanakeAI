@@ -61,6 +61,40 @@ python agent.py
 tensorboard --logdir=logs
 ```
 
+## 使用训练好的模型
+
+训练完成后会生成：
+
+```text
+model/best_model.pth      历史最高分模型
+model/checkpoint.pth      最近一次周期性保存
+```
+
+如果使用本次训练出的新模型，目录是：
+
+```text
+model_v2/best_model.pth
+model_v2/checkpoint.pth
+```
+
+在 Pygame 可视化窗口里运行最佳模型：
+
+```bash
+python agent.py --play --model-dir ./model_v2 --model-file best_model.pth
+```
+
+常用参数：
+
+```bash
+# 调整显示速度
+python agent.py --play --model-dir ./model_v2 --fps 20
+
+# 使用最近 checkpoint 而不是 best model
+python agent.py --play --model-dir ./model_v2 --model-file checkpoint.pth
+```
+
+运行后会打开贪吃蛇窗口，模型会自动控制蛇行动；关闭窗口即可退出。
+
 ## 测试
 
 ```bash

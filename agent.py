@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import os
 import random
 import time
@@ -308,5 +309,60 @@ def train(config: TrainConfig | None = None) -> None:
         writer.close()
 
 
+def play(config: TrainConfig | None = None, model_file: str = "best_model.pth", fps: int = 30) -> None:
+    config = config or TrainConfig()
+    agent = Agent(config=config)
+    record = agent.load_checkpoint(model_file)
+    agent.n_games = agent.config.epsilon_decay_games
+    game = SnakeGameAI()
+    print(f"已加载 {os.path.join(config.model_dir, model_file)}，训练最高分 {record}。按关闭窗口退出。")
+
+    while True:
+        state = agent.get_state(game)
+        action = agent.get_action(state)
+        _, done, score = game.play_step(action, render=True)
+        game.clock.tick(fps)
+
+        if done:
+            print(f"本局得分: {score}")
+            game.reset()
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Snake AI train/play entrypoint")
+    parser.add_argument(
+        "--play",
+        action="store_true",
+        help="加载训练好的模型，在 Pygame 可视化窗口中运行",
+    )
+    parser.add_argument(
+        "--model-dir",
+        default="./model",
+        help="模型目录，例如 ./model_v2",
+    )
+    parser.add_argument(
+        "--model-file",
+        default="best_model.pth",
+        help="模型文件名，默认 best_model.pth",
+    )
+    parser.add_argument(
+        "--log-dir",
+        default="./logs",
+        help="训练日志目录",
+    )
+    parser.add_argument(
+        "--fps",
+        type=int,
+        default=30,
+        help="可视化运行帧率",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    train()
+    args = parse_args()
+    runtime_config = TrainConfig(model_dir=args.model_dir, log_dir=args.log_dir)
+    if args.play:
+        play(runtime_config, model_file=args.model_file, fps=args.fps)
+    else:
+        train(runtime_config)
