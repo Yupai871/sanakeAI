@@ -1,0 +1,6 @@
+student_id,name,run_id,model_file,score,steps,notes
+20260001,张三,1,model_v2/best_model.pth,24,520,example only
+20260001,张三,2,model_v2/best_model.pth,31,640,example only
+20260001,张三,3,model_v2/best_model.pth,18,430,example only
+20260001,张三,4,model_v2/best_model.pth,42,850,example only
+20260001,张三,5,model_v2/best_model.pth,27,560,example only

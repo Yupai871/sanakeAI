@@ -95,6 +95,81 @@ python agent.py --play --model-dir ./model_v2 --model-file checkpoint.pth
 
 运行后会打开贪吃蛇窗口，模型会自动控制蛇行动；关闭窗口即可退出。
 
+## 学生 Git 练习流程
+
+### 1. 拉取项目
+
+```bash
+git clone https://gitee.com/yupai871---harmony-drumbeat/snake-ai.git
+cd snake-ai
+```
+
+如果老师要求使用 GitHub，请把地址换成对应 GitHub 仓库地址。
+
+### 2. 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. 创建自己的分支
+
+分支名建议使用 `student/学号-姓名`：
+
+```bash
+git checkout -b student/20260001-zhangsan
+```
+
+### 4. 运行训练好的模型
+
+```bash
+python agent.py --play --model-dir ./model_v2 --model-file best_model.pth --fps 30
+```
+
+每局结束后终端会输出：
+
+```text
+Run 1 | Score 24 | Steps 520
+Run 2 | Score 31 | Steps 640
+```
+
+至少记录 5 局结果。
+
+### 5. 填写自己的结果文件
+
+复制模板：
+
+```bash
+copy student_results\template.csv student_results\20260001_张三.csv
+```
+
+把里面的示例数据改成自己的运行结果。
+
+要求：
+
+- 每位同学只修改自己的 `student_results/学号_姓名.csv`
+- 不要修改其他同学的文件
+- 不要提交 `model/`、`model_v2/`、`logs/`、`artifacts/` 里的训练输出
+
+### 6. 提交并推送
+
+```bash
+git status
+git add student_results/20260001_张三.csv
+git commit -m "submit: 20260001 张三 snake ai result"
+git push origin student/20260001-zhangsan
+```
+
+### 7. 提交给老师检查
+
+把你的分支名发给老师，例如：
+
+```text
+student/20260001-zhangsan
+```
+
+老师可以通过该分支检查你的 Git 操作和运行结果。
+
 ## 测试
 
 ```bash

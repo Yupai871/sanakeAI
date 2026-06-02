@@ -316,16 +316,21 @@ def play(config: TrainConfig | None = None, model_file: str = "best_model.pth", 
     agent.n_games = agent.config.epsilon_decay_games
     game = SnakeGameAI()
     print(f"已加载 {os.path.join(config.model_dir, model_file)}，训练最高分 {record}。按关闭窗口退出。")
+    episode_steps = 0
+    run_id = 1
 
     while True:
+        episode_steps += 1
         state = agent.get_state(game)
         action = agent.get_action(state)
         _, done, score = game.play_step(action, render=True)
         game.clock.tick(fps)
 
         if done:
-            print(f"本局得分: {score}")
+            print(f"Run {run_id} | Score {score} | Steps {episode_steps}")
             game.reset()
+            episode_steps = 0
+            run_id += 1
 
 
 def parse_args() -> argparse.Namespace:
