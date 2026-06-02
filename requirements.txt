@@ -1,0 +1,5 @@
+numpy==2.1.3
+pygame
+protobuf>=3.20.3,<6
+tensorboard
+torch

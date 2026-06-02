@@ -5,6 +5,7 @@ from collections import namedtuple
 import numpy as np
 
 pygame.init()
+pygame.font.init()
 font = pygame.font.Font(None, 25)
 
 
@@ -30,15 +31,15 @@ class SnakeGameAI:
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
-        self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('AI Snake')
+        self.display = None
         self.clock = pygame.time.Clock()
         self.reset()
 
     def reset(self):
         # 初始状态
         self.direction = Direction.RIGHT
-        self.head = Point(self.w / 2, self.h / 2)
+        self.head = Point((self.w // (2 * BLOCK_SIZE)) * BLOCK_SIZE,
+                          (self.h // (2 * BLOCK_SIZE)) * BLOCK_SIZE)
         self.snake = [self.head,
                       Point(self.head.x - BLOCK_SIZE, self.head.y),
                       Point(self.head.x - (2 * BLOCK_SIZE), self.head.y)]
@@ -48,13 +49,14 @@ class SnakeGameAI:
         self.frame_iteration = 0
 
     def _place_food(self):
-        # 修复：用迭代替代递归，避免蛇体极长时的栈溢出风险
-        while True:
-            x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-            y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-            self.food = Point(x, y)
-            if self.food not in self.snake:
-                break
+        occupied = set(self.snake)
+        free_cells = [
+            Point(x, y)
+            for x in range(0, self.w, BLOCK_SIZE)
+            for y in range(0, self.h, BLOCK_SIZE)
+            if Point(x, y) not in occupied
+        ]
+        self.food = random.choice(free_cells) if free_cells else None
 
     def play_step(self, action, render=True):
         self.frame_iteration += 1
@@ -64,6 +66,9 @@ class SnakeGameAI:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
+        if self.food is None:
+            return 10, True, self.score
 
         # 记录移动前，蛇头到食物的曼哈顿距离
         old_distance = abs(self.head.x - self.food.x) + abs(self.head.y - self.food.y)
@@ -89,6 +94,7 @@ class SnakeGameAI:
             self.score += 1
             reward = 10  # 吃到食物的绝对核心奖励
             self._place_food()
+            self.frame_iteration = 0
         else:
             self.snake.pop()  # 没吃到食物，尾巴缩进一格
 
@@ -123,6 +129,10 @@ class SnakeGameAI:
         return False
 
     def _update_ui(self):
+        if self.display is None:
+            self.display = pygame.display.set_mode((self.w, self.h))
+            pygame.display.set_caption('AI Snake')
+
         self.display.fill(BLACK)
         # 画蛇
         for pt in self.snake:
@@ -136,6 +146,8 @@ class SnakeGameAI:
 
     def _move(self, action):
         # action = [直走, 右转, 左转] -> [1,0,0] 或 [0,1,0] 或 [0,0,1]
+        if len(action) != 3 or sum(action) != 1:
+            raise ValueError(f"动作必须是 3 维 one-hot，实际为: {action}")
 
         # 建立一个顺时针的方向数组：右 -> 下 -> 左 -> 上
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
