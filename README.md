@@ -1,4 +1,10 @@
-# Snake AI
+# Snake AI# 贪吃蛇AI项目
+基于GD32单片机的贪吃蛇游戏AI实现
+
+## 本地运行记录
+- 2026-06-02：本地成功编译并运行项目
+- 开发环境：Keil MDK 5
+- 硬件平台：GD32F103C8T6
 
 基于 PyTorch 和 Pygame 的贪吃蛇强化学习实验项目。当前版本使用 Double DQN、软更新 target network、优先经验回放（PER）和双模态状态输入训练智能体。
 
